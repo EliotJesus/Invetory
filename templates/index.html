@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Inventario | Centro de Control</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div>
+                <div class="brand">
+                    <div class="brand-mark">
+                        <i data-lucide="layers-3"></i>
+                    </div>
+                    <div>
+                        <strong>Centro de Control</strong>
+                        <span>Núcleo del sistema</span>
+                    </div>
+                </div>
+
+                <nav class="side-nav" aria-label="Navegación principal">
+                    <button class="nav-item" type="button" data-view="panel">
+                        <i data-lucide="layout-dashboard"></i>
+                        Panel
+                    </button>
+                    <button class="nav-item active" type="button" data-view="inventario">
+                        <i data-lucide="archive"></i>
+                        Inventario
+                    </button>
+                    <button class="nav-item" type="button" data-view="analiticas">
+                        <i data-lucide="activity"></i>
+                        Analíticas
+                    </button>
+                    <button class="nav-item" type="button" data-view="sistema">
+                        <i data-lucide="settings"></i>
+                        Sistema
+                    </button>
+                </nav>
+            </div>
+
+            <button class="new-record" id="btnNuevoRegistro" type="button">
+                <i data-lucide="plus-circle"></i>
+                Nuevo registro
+            </button>
+        </aside>
+
+        <main class="workspace">
+            <header class="topbar">
+                <label class="global-search" for="buscador">
+                    <i data-lucide="search"></i>
+                    <input type="search" id="buscador" placeholder="Buscar en la red de dispositivos...">
+                </label>
+
+                <div class="top-actions">
+                    <button class="icon-button" id="btnNotificaciones" type="button" aria-label="Notificaciones" aria-expanded="false">
+                        <i data-lucide="bell"></i>
+                        <span id="notificationDot"></span>
+                    </button>
+                    <button class="icon-button" id="btnAyuda" type="button" aria-label="Ayuda">
+                        <i data-lucide="circle-help"></i>
+                    </button>
+                    <a 
+                    class="profile profile-button" 
+                    id="btnPerfil" href="https://github.com/EliotJesus" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    aria-label="Abrir perfil del sistema">
+                    <div>
+                        <strong>Eliot Sanchez</strong>
+                        <span>Creador del sistema</span>
+                    </div>
+
+                    <div class="avatar">ES</div>
+                    </a>
+                </div>
+
+                <div class="popover" id="notificationPanel" hidden>
+                    <div class="section-title">
+                        <h2>Notificaciones</h2>
+                        <p id="notificationSummary">Sin eventos</p>
+                    </div>
+                    <ul class="notification-list" id="notificationList"></ul>
+                </div>
+            </header>
+
+            <section class="content">
+                <div class="page-heading">
+                    <div>
+                        <p class="eyebrow" id="pageEyebrow">Infraestructura corporativa</p>
+                        <h1 id="pageTitle">Gestión de Inventario</h1>
+                        <p id="pageDescription">Configure y registre nuevos terminales en la red de la empresa.</p>
+                    </div>
+                    <div class="status-pill">
+                        <span></span>
+                        <strong id="statusLabel">Inventario activo</strong>
+                    </div>
+                </div>
+
+                <section class="metrics-grid" aria-label="Resumen del inventario">
+                    <article class="metric-card">
+                        <span>Total de terminales</span>
+                        <strong id="totalDispositivos">0</strong>
+                    </article>
+                    <article class="metric-card">
+                        <span>Activos</span>
+                        <strong id="activos">0</strong>
+                    </article>
+                    <article class="metric-card">
+                        <span>En reparación</span>
+                        <strong id="reparacion">0</strong>
+                    </article>
+                    <article class="metric-card">
+                        <span>Dados de baja</span>
+                        <strong id="baja">0</strong>
+                    </article>
+                </section>
+
+                <section class="view-section" data-view-panel="panel">
+                    <div class="dashboard-grid">
+                        <article class="panel dashboard-card">
+                            <div class="section-title accent">
+                                <h2>Actividad reciente</h2>
+                                <p id="recentSummary">Sin movimientos</p>
+                            </div>
+                            <ul class="activity-list" id="recentActivity"></ul>
+                        </article>
+
+                        <article class="panel dashboard-card">
+                            <div class="section-title accent">
+                                <h2>Áreas con equipos</h2>
+                                <p>Distribución actual</p>
+                            </div>
+                            <div class="summary-list" id="areaSummary"></div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="view-section is-active" data-view-panel="inventario">
+                    <section class="panel register-panel" aria-labelledby="form-title">
+                        <div class="section-title">
+                            <h2 id="form-title">Registro de terminal</h2>
+                            <p id="formMode">Nuevo dispositivo</p>
+                        </div>
+
+                        <form id="deviceForm" autocomplete="off">
+                            <input type="hidden" id="id">
+
+                            <div class="form-grid">
+                                <label class="field">
+                                    <span>Nombre del dispositivo</span>
+                                    <div class="control">
+                                        <i data-lucide="monitor"></i>
+                                        <input type="text" id="nombre" placeholder="ID o nombre del terminal">
+                                    </div>
+                                </label>
+
+                                <label class="field">
+                                    <span>Categoría</span>
+                                    <div class="control">
+                                        <i data-lucide="boxes"></i>
+                                        <select id="tipo">
+                                            <option value="">Selecciona tipo</option>
+                                            <option value="Laptop">Laptop</option>
+                                            <option value="PC">PC</option>
+                                            <option value="Impresora">Impresora</option>
+                                            <option value="Monitor">Monitor</option>
+                                            <option value="Celular">Celular</option>
+                                            <option value="Servidor">Servidor</option>
+                                        </select>
+                                    </div>
+                                </label>
+
+                                <label class="field">
+                                    <span>Estado inicial</span>
+                                    <div class="control">
+                                        <i data-lucide="badge-check"></i>
+                                        <select id="estado">
+                                            <option value="">Selecciona estado</option>
+                                            <option value="Activo">Activo</option>
+                                            <option value="En reparación">En reparación</option>
+                                            <option value="Baja">Baja</option>
+                                        </select>
+                                    </div>
+                                </label>
+
+                                <label class="field">
+                                    <span>Área designada</span>
+                                    <div class="control">
+                                        <i data-lucide="map-pin"></i>
+                                        <select id="area">
+                                            <option value="">Selecciona área</option>
+                                            <option value="Sistemas">Sistemas</option>
+                                            <option value="Administración">Administración</option>
+                                            <option value="Recursos Humanos">Recursos Humanos</option>
+                                            <option value="Finanzas">Finanzas</option>
+                                            <option value="Operaciones">Operaciones</option>
+                                            <option value="Ventas">Ventas</option>
+                                        </select>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="buttons">
+                                <button class="secondary" id="btnActualizar" type="button" disabled>
+                                    Actualizar existente
+                                </button>
+                                <button class="primary" id="btnGuardar" type="submit">
+                                    Guardar registro
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+
+                    <section class="inventory-section" aria-labelledby="inventory-title">
+                        <div class="table-heading">
+                            <div class="section-title accent">
+                                <h2 id="inventory-title">Explorador de terminales</h2>
+                                <p id="lastSync">Sincronización pendiente</p>
+                            </div>
+                            <div class="table-tools">
+                                <button class="icon-button" id="btnFiltro" type="button" aria-label="Abrir filtros" aria-expanded="false">
+                                    <i data-lucide="filter"></i>
+                                </button>
+                                <button class="icon-button" id="btnExportar" type="button" aria-label="Exportar CSV">
+                                    <i data-lucide="download"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="filter-panel" id="filterPanel" hidden>
+                            <label class="field">
+                                <span>Filtrar por estado</span>
+                                <div class="control">
+                                    <select id="filtroEstado">
+                                        <option value="">Todos los estados</option>
+                                        <option value="Activo">Activos</option>
+                                        <option value="En reparación">En reparación</option>
+                                        <option value="Baja">Dados de baja</option>
+                                    </select>
+                                </div>
+                            </label>
+                            <label class="field">
+                                <span>Filtrar por categoría</span>
+                                <div class="control">
+                                    <select id="filtroTipo">
+                                        <option value="">Todas las categorías</option>
+                                        <option value="Laptop">Laptop</option>
+                                        <option value="PC">PC</option>
+                                        <option value="Impresora">Impresora</option>
+                                        <option value="Monitor">Monitor</option>
+                                        <option value="Celular">Celular</option>
+                                        <option value="Servidor">Servidor</option>
+                                    </select>
+                                </div>
+                            </label>
+                            <label class="field">
+                                <span>Filtrar por área</span>
+                                <div class="control">
+                                    <select id="filtroArea">
+                                        <option value="">Todas las áreas</option>
+                                        <option value="Sistemas">Sistemas</option>
+                                        <option value="Administración">Administración</option>
+                                        <option value="Recursos Humanos">Recursos Humanos</option>
+                                        <option value="Finanzas">Finanzas</option>
+                                        <option value="Operaciones">Operaciones</option>
+                                        <option value="Ventas">Ventas</option>
+                                    </select>
+                                </div>
+                            </label>
+                            <div class="filter-actions">
+                                <button class="secondary" id="btnLimpiarFiltros" type="button">Limpiar filtros</button>
+                                <button class="primary" id="btnAplicarFiltros" type="button">Aplicar filtros</button>
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Identificador</th>
+                                        <th>Nombre del equipo</th>
+                                        <th>Categoría</th>
+                                        <th>Estado</th>
+                                        <th>Área / Depto</th>
+                                        <th>Sincronización</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla"></tbody>
+                            </table>
+
+                            <div class="empty-state" id="emptyState">
+                                <i data-lucide="database"></i>
+                                <strong>No hay dispositivos para mostrar</strong>
+                                <span>Ajusta los filtros o agrega un nuevo terminal.</span>
+                            </div>
+                        </div>
+                    </section>
+                </section>
+
+                <section class="view-section" data-view-panel="analiticas">
+                    <div class="analytics-grid">
+                        <article class="panel dashboard-card">
+                            <div class="section-title accent">
+                                <h2>Estado del inventario</h2>
+                                <p id="statusChartSummary">Sin datos</p>
+                            </div>
+                            <div class="chart-list" id="statusChart"></div>
+                        </article>
+                        <article class="panel dashboard-card">
+                            <div class="section-title accent">
+                                <h2>Categorías registradas</h2>
+                                <p id="typeChartSummary">Sin datos</p>
+                            </div>
+                            <div class="chart-list" id="typeChart"></div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="view-section" data-view-panel="sistema">
+                    <div class="system-grid">
+                        <article class="panel dashboard-card">
+                            <div class="section-title accent">
+                                <h2>Estado del sistema</h2>
+                                <p id="systemMode">Cargando estado</p>
+                            </div>
+                            <div class="summary-list" id="systemSummary"></div>
+                        </article>
+
+                        <article class="panel dashboard-card">
+                            <div class="section-title accent">
+                                <h2>Herramientas</h2>
+                                <p>Acciones operativas</p>
+                            </div>
+                            <div class="tool-grid">
+                                <button class="secondary" id="btnRecargarDatos" type="button">Recargar datos</button>
+                                <button class="secondary" id="btnIrRegistro" type="button">Ir al registro</button>
+                                <button class="secondary" id="btnExportarJson" type="button">Exportar JSON</button>
+                                <button class="secondary" id="btnVistaCompacta" type="button">Vista compacta</button>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <div class="modal" id="helpModal" hidden>
+        <div class="modal-card">
+            <div class="section-title">
+                <h2>Ayuda rápida</h2>
+                <button class="action-button" id="btnCerrarAyuda" type="button" aria-label="Cerrar ayuda">×</button>
+            </div>
+            <p>Usa Inventario para crear, editar, filtrar y exportar dispositivos. Panel muestra el resumen operativo, Analíticas muestra gráficas simples y Sistema contiene acciones de administración.</p>
+            <ul class="help-list">
+                <li>El botón de filtro limita la tabla por estado, categoría y área.</li>
+                <li>El icono de descarga exporta el inventario visible en CSV.</li>
+                <li>Las acciones de cada fila permiten editar o eliminar registros.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
